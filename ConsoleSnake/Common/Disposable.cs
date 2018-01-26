@@ -2,11 +2,11 @@
 
 namespace ConsoleSnake.Common
 {
-    public sealed class Disposable : IDisposable
+    internal sealed class Disposable : IDisposable
     {
         private readonly Action _action;
 
-        public Disposable(Action action)
+        internal Disposable(Action action)
         {
             _action = action;
         }

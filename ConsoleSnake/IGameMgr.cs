@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace ConsoleSnake
+﻿namespace ConsoleSnake
 {
-    public interface IGameMgr : IDisposable
+    internal interface IGameMgr
     {
         void Play();
     }

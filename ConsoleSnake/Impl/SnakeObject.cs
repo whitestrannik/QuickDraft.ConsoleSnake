@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace ConsoleSnake.Impl
 {
-    public sealed class SnakeObject
+    internal sealed class SnakeObject
     {
         private SnakeSegment _head;
         private SnakeSegment _tail;
 
-        public SnakeObject(IEnumerable<Point> points)
+        internal SnakeObject(IEnumerable<Point> points)
         {
             ConstructSnake(points);
         }

@@ -1,6 +1,6 @@
 ﻿namespace ConsoleSnake.Common
 {
-    public enum FieldTypes : byte
+    internal enum FieldTypes : byte
     {
         Empty = 0,
         Snake,

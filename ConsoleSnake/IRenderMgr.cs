@@ -3,7 +3,7 @@ using System;
 
 namespace ConsoleSnake
 {
-    public interface IRenderMgr : IDisposable
+    internal interface IRenderMgr : IDisposable
     {
         void SetRenderData(FieldTypes[,] dataForRendering);
 

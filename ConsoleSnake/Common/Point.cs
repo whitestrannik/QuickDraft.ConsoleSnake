@@ -2,17 +2,17 @@
 
 namespace ConsoleSnake.Common
 {
-    public struct Point : IEquatable<Point>
+    internal struct Point : IEquatable<Point>
     {
-        public Point(int x, int y)
+        internal Point(int x, int y)
         {
             X = x;
             Y = y;
         }
 
-        public int X { get; }
+        internal int X { get; }
 
-        public int Y { get; }
+        internal int Y { get; }
 
         public override bool Equals(object obj)
         {

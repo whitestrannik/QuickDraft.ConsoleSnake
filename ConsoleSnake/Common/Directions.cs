@@ -1,6 +1,6 @@
 ﻿namespace ConsoleSnake.Common
 {
-    public enum Direction
+    internal enum Direction
     {
         Up,
         Down,

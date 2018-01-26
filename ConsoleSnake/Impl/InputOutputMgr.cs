@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 
 namespace ConsoleSnake.Impl
 {
-    public class InputOutputMgr : IInputOutputMgr
+    internal class InputOutputMgr : IInputOutputMgr
     {
         private volatile bool _isExit;
 
-        public InputOutputMgr()
+        internal InputOutputMgr()
         {
             Console.CursorVisible = false;
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
             Console.Clear();
         }
 
@@ -46,12 +48,13 @@ namespace ConsoleSnake.Impl
             }
         }
 
-        public void LogAndExit(Exception ex)
+        public void LogAndStopOutput(Exception ex)
         {
             _isExit = true;
 
             Console.Clear();
             Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
             Console.WriteLine("Press any key...");
         }
 

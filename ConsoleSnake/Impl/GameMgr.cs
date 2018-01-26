@@ -7,28 +7,26 @@ using System.Threading.Tasks;
 
 namespace ConsoleSnake.Impl
 {
-    public partial class GameMgr : IGameMgr
+    internal sealed class GameMgr : IGameMgr
     {
         private readonly IGameContext _gameContext;
         private readonly IInputOutputMgr _inputMgr;
         private readonly IRenderMgr _renderMgr;
+        private readonly Random _rnd;
 
         private List<Point> _prebuildWalls;
         private List<Point> _snakeNextHeads;
         private List<Point> _initialSnakeState;
-        private CancellationTokenSource _cts;
-        private Task _task;
         private volatile Direction _currentDirection;
         private SnakeObject _snake;
 
-        public GameMgr(IGameContext gameContext, IInputOutputMgr inputMgr, IRenderMgr renderMgr)
+        internal GameMgr(IGameContext gameContext, IInputOutputMgr inputMgr, IRenderMgr renderMgr)
         {
             _gameContext = gameContext;
             _inputMgr = inputMgr;
             _renderMgr = renderMgr;
             _currentDirection = Direction.Right;
-
-            InitData();
+            _rnd = new Random();
         }
 
         public void Play()
@@ -40,35 +38,39 @@ namespace ConsoleSnake.Impl
             ShowFinalScreen();
         }
 
-        public void Dispose()
+        private void InitGame()
         {
-            if (_task != null)
-            {
-                _cts.Cancel();
-                _task.Wait();
-                _cts.Dispose();
-            }
-        }
-
-        private void InitData()
-        {
-            _initialSnakeState = new List<Point> { new Point(0, 4), new Point(0, 3), new Point(0, 2), new Point(0, 1), new Point(0, 0) };
+            _initialSnakeState = new List<Point> { new Point(0, 2), new Point(0, 1), new Point(0, 0) };
             _prebuildWalls = GeneratePrebuildsWalls(20);
             _snakeNextHeads = new List<Point> { GenerateNewHead(), GenerateNewHead(), GenerateNewHead() };
+            _snake = new SnakeObject(_initialSnakeState);
+            Render(_initialSnakeState);
         }
 
         private void PlayGame()
         {
-            using (_inputMgr.SubscribeToInput(OnKeyPressed()))
+            InitGame();
+
+            using (_inputMgr.SubscribeToInput(OnKeyPressed))
             {
-                _cts = new CancellationTokenSource();
+                var time = DateTime.Now;
+                while (true)
+                {
+                    Task.Delay((10 - _gameContext.SnakeSpeed) * 100).Wait();
 
-                var initialSnakePosition = new[] { new Point(0, 4), new Point(0, 3), new Point(0, 2), new Point(0, 1), new Point(0, 0) };
-                _snake = new SnakeObject(initialSnakePosition);
-                Render(initialSnakePosition);
+                    try
+                    {
+                        var currentTime = DateTime.Now;
+                        _gameContext.AddDuration(currentTime - time);
+                        time = currentTime;
 
-                _task = StartGameCycleInternal();
-                _task.Wait();
+                        RedrawBoard();
+                    }
+                    catch (GameFinishedException)
+                    {
+                        return;
+                    }
+                }
             }
         }
 
@@ -83,42 +85,17 @@ namespace ConsoleSnake.Impl
             _inputMgr.WaitForClick();
         }
 
-        private async Task StartGameCycleInternal()
+        private void OnKeyPressed(ConsoleKeyInfo key)
         {
-            var time = DateTime.Now;
+            var direction = ConvertToDirection(key);
 
-            while (!_cts.IsCancellationRequested)
+            if (direction.HasValue)
             {
-                await Task.Delay(300).ConfigureAwait(false);
-                try
-                {
-                    var currentTime = DateTime.Now;
-                    _gameContext.AddDuration(currentTime - time);
-                    time = currentTime;
-
-                    RecalculateBoard();
-                }
-                catch(GameFinishedException)
-                {
-                    return;
-                }
+                _currentDirection = direction.Value;
             }
         }
 
-        private Action<ConsoleKeyInfo> OnKeyPressed()
-        {
-            return key =>
-            {
-                var direction = ConvertToDirection(key);
-
-                if (direction.HasValue)
-                {
-                    _currentDirection = direction.Value;
-                }
-            };
-        }
-
-        private void RecalculateBoard()
+        private void RedrawBoard()
         {
             var newSnakePositions = _snake.Move(_currentDirection);
             var head = newSnakePositions.First();
@@ -198,6 +175,7 @@ namespace ConsoleSnake.Impl
         private List<Point> GeneratePrebuildsWalls(int wallsToGenerate)
         {
             List<Point> list = new List<Point>();
+
             while (list.Count < wallsToGenerate)
             {
                 var point = GeneratePoint(_gameContext.BoardHeight - 1, _gameContext.BoardWidth - 1);
@@ -226,8 +204,7 @@ namespace ConsoleSnake.Impl
 
         private Point GeneratePoint(int maxRow, int maxColumn)
         {
-            var rnd = new Random();
-            return new Point(rnd.Next(maxRow), rnd.Next(maxColumn));
+            return new Point(_rnd.Next(maxRow), _rnd.Next(maxColumn));
         }
     }
 }

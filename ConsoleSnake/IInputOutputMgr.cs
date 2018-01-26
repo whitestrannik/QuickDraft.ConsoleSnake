@@ -2,7 +2,7 @@
 
 namespace ConsoleSnake
 {
-    public interface IInputOutputMgr
+    internal interface IInputOutputMgr
     {
         void WaitForClick();
 
@@ -10,6 +10,6 @@ namespace ConsoleSnake
 
         void DisplayOutput(string output);
 
-        void LogAndExit(Exception ex);
+        void LogAndStopOutput(Exception ex);
     }
 }

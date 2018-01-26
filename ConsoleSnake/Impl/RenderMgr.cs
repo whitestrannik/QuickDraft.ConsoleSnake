@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace ConsoleSnake.Impl
 {
-    public class RenderMgr : IRenderMgr
+    internal class RenderMgr : IRenderMgr
     {
         private readonly IGameParameters _gameParameters;
         private readonly IInputOutputMgr _inputOutputMgr;
-        private Task _task;
         private readonly CancellationTokenSource _cts;
+        private Task _task;
         private long _counter;
         private volatile Action _currentRenderAction;
 
-        public RenderMgr(IGameParameters gameResults, IInputOutputMgr inputOutputMgr)
+        internal RenderMgr(IGameParameters gameResults, IInputOutputMgr inputOutputMgr)
         {
             _gameParameters = gameResults;
             _inputOutputMgr = inputOutputMgr;
@@ -67,7 +67,7 @@ namespace ConsoleSnake.Impl
                 }
                 catch (Exception ex)
                 {
-                    _inputOutputMgr.LogAndExit(ex);
+                    _inputOutputMgr.LogAndStopOutput(ex);
                 }
             }
         }
@@ -80,6 +80,8 @@ namespace ConsoleSnake.Impl
             var realColumnCount = _gameParameters.BoardWidth + 2;
             var capacity = realRowCount * realColumnCount;
             var sb = new StringBuilder(capacity);
+
+            sb.AppendLine("       === CONSOLE SNAKE ===");
 
             sb.Append("╔".PadRight(7, '═'));
             sb.Append("╦".PadRight(7, '═'));
@@ -168,7 +170,7 @@ namespace ConsoleSnake.Impl
             switch (value)
             {
                 case FieldTypes.Empty:
-                    result = ':';
+                    result = '+';
                     break;
                 case FieldTypes.Snake:
                     result = 'o';

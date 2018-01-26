@@ -2,9 +2,9 @@
 
 namespace ConsoleSnake
 {
-    public class GameContext : IGameContext
+    internal sealed class GameContext : IGameContext
     {
-        public GameContext(int boardWidth, int boardHeight, int snakeSpeed, int initialSnakeSegmentCount)
+        internal GameContext(int boardWidth, int boardHeight, int snakeSpeed, int initialSnakeSegmentCount)
         {
             BoardWidth = boardWidth;
             BoardHeight = boardHeight;
